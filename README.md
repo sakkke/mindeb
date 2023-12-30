@@ -1,0 +1,2 @@
+# mindeb
+Minimal Debian
