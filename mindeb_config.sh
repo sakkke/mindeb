@@ -16,6 +16,7 @@ declare -r PACKAGES=(
 
 declare -r LIVE_PACKAGES=(
 	live-boot
+	sudo
 )
 
 declare -r LIVE_USERNAME=mindeb

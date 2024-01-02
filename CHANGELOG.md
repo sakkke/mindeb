@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Live user.
+- `sudo` in live.
 
 ## [0.0.1] - 2024-01-02
 
