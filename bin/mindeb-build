@@ -272,6 +272,7 @@ function setup_live_squashfs_root_final_dir {
 			} &&
 			chroot_sync "$merged_dir" /usr/sbin/adduser --comment '' \
 				--disabled-password "$LIVE_USERNAME" &&
+			chroot_sync "$merged_dir" /usr/sbin/adduser "$LIVE_USERNAME" sudo &&
 			chroot_sync "$merged_dir" /bin/sh \
 				-c "echo $LIVE_USERNAME:$LIVE_PASSWORD | chpasswd" &&
 			cp_mkdir "$upperdir" "$LIVE_SQUASHFS_ROOT_FINAL_DIR" -a

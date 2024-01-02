@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Live user.
 - `sudo` in live.
+- Live user to group `sudo`.
 
 ## [0.0.1] - 2024-01-02
 
