@@ -19,23 +19,23 @@ declare -r BOOT_EFI="${BOOT_EFI:-"$OUT_DIR"/boot.efi}"
 
 declare -r ESP_IMG="${ESP_IMG:-"$OUT_DIR"/esp.img}"
 declare -r ESP_IMG_ROOT_DIR="${ESP_IMG_ROOT_DIR:-"$OUT_DIR"/esp-img-root}"
-declare -r ESP_IMG_ROOT_TEMPLATE_DIR="${ESP_IMG_ROOT_TEMPLATE_DIR:-'esp-img-root.template'}"
+declare -r ESP_IMG_ROOT_TEMPLATE_DIR="${ESP_IMG_ROOT_TEMPLATE_DIR:-"esp-img-root.template"}"
 
 declare -r LIVE_SQUASHFS="${LIVE_SQUASHFS:-"$OUT_DIR"/live.squashfs}"
 declare -r LIVE_SQUASHFS_ROOT_1_DIR="${LIVE_SQUASHFS_ROOT_1_DIR:-"$OUT_DIR"/live-squashfs-root.1}"
 declare -r LIVE_SQUASHFS_ROOT_2_DIR="${LIVE_SQUASHFS_ROOT_2_DIR:-"$OUT_DIR"/live-squashfs-root.2}"
 declare -r LIVE_SQUASHFS_ROOT_FINAL_DIR="${LIVE_SQUASHFS_ROOT_FINAL_DIR:-"$OUT_DIR"/live-squashfs-root.final}"
-declare -r LIVE_SQUASHFS_ROOT_TEMPLATE_DIR="${LIVE_SQUASHFS_ROOT_TEMPLATE_DIR:-'live-squashfs-root.template'}"
+declare -r LIVE_SQUASHFS_ROOT_TEMPLATE_DIR="${LIVE_SQUASHFS_ROOT_TEMPLATE_DIR:-"live-squashfs-root.template"}"
 
 declare -r MAIN_SQUASHFS="${MAIN_SQUASHFS:-"$OUT_DIR"/main.squashfs}"
 declare -r MAIN_SQUASHFS_ROOT_1_DIR="${MAIN_SQUASHFS_ROOT_1_DIR:-"$OUT_DIR"/main-squashfs-root.1}"
 declare -r MAIN_SQUASHFS_ROOT_2_DIR="${MAIN_SQUASHFS_ROOT_2_DIR:-"$OUT_DIR"/main-squashfs-root.2}"
 declare -r MAIN_SQUASHFS_ROOT_FINAL_DIR="${MAIN_SQUASHFS_ROOT_FINAL_DIR:-"$OUT_DIR"/main-squashfs-root.final}"
-declare -r MAIN_SQUASHFS_ROOT_TEMPLATE_DIR="${MAIN_SQUASHFS_ROOT_TEMPLATE_DIR:-'main-squashfs-root.template'}"
+declare -r MAIN_SQUASHFS_ROOT_TEMPLATE_DIR="${MAIN_SQUASHFS_ROOT_TEMPLATE_DIR:-"main-squashfs-root.template"}"
 
 declare -r OUT_ISO="${OUT_ISO:-"$OUT_DIR"/"$NAME"-"$VERSION"-"$ARCH".iso}"
 declare -r OUT_ISO_ROOT_DIR="${OUT_ISO_ROOT_DIR:-"$OUT_DIR"/out-iso-root}"
-declare -r OUT_ISO_ROOT_TEMPLATE_DIR="${OUT_ISO_ROOT_TEMPLATE_DIR:-'out-iso-root.template'}"
+declare -r OUT_ISO_ROOT_TEMPLATE_DIR="${OUT_ISO_ROOT_TEMPLATE_DIR:-"out-iso-root.template"}"
 
 function main {
 	[[ -d "$OUT_DIR" ]] || setup_out_dir
