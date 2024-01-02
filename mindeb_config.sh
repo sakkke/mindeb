@@ -17,3 +17,6 @@ declare -r PACKAGES=(
 declare -r LIVE_PACKAGES=(
 	live-boot
 )
+
+declare -r LIVE_USERNAME=mindeb
+declare -r LIVE_PASSWORD=mindeb

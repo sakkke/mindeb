@@ -6,7 +6,8 @@ set -eu
 declare -r CONFIG_SH="${CONFIG_SH:-mindeb_config.sh}"
 source "$CONFIG_SH"
 : "$NAME" "$VERSION" "$ARCH" "$DEBIAN_SUITE" "$KERNEL_VERSION" \
-	"$KERNEL_CMDLINE" "${PACKAGES[@]}" "${LIVE_PACKAGES[@]}"
+	"$KERNEL_CMDLINE" "${PACKAGES[@]}" "${LIVE_PACKAGES[@]}" "$LIVE_USERNAME" \
+	"$LIVE_PASSWORD"
 
 # Build configurations
 declare -r SUDO_COMMAND="${SUDO_COMMAND:-sudo}"
@@ -269,6 +270,10 @@ function setup_live_squashfs_root_final_dir {
 				[[ ! -d "$LIVE_SQUASHFS_ROOT_TEMPLATE_DIR" ]] ||
 					cp_mkdir "$LIVE_SQUASHFS_ROOT_TEMPLATE_DIR" "$merged_dir" -Tr
 			} &&
+			chroot_sync "$merged_dir" /usr/sbin/adduser --comment '' \
+				--disabled-password "$LIVE_USERNAME" &&
+			chroot_sync "$merged_dir" /bin/sh \
+				-c "echo $LIVE_USERNAME:$LIVE_PASSWORD | chpasswd" &&
 			cp_mkdir "$upperdir" "$LIVE_SQUASHFS_ROOT_FINAL_DIR" -a
 	} || {
 		# catch
