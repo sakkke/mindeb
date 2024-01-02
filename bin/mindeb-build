@@ -1,0 +1,378 @@
+#!/bin/bash
+
+set -eu
+
+# Load common Mindeb configuration variables
+declare -r CONFIG_SH="${CONFIG_SH:-mindeb_config.sh}"
+source "$CONFIG_SH"
+: "$NAME" "$VERSION" "$ARCH" "$DEBIAN_SUITE" "$KERNEL_VERSION" \
+	"$KERNEL_CMDLINE" "${PACKAGES[@]}" "${LIVE_PACKAGES[@]}"
+
+# Build configurations
+declare -r SUDO_COMMAND="${SUDO_COMMAND:-sudo}"
+
+# Output paths
+declare -r OUT_DIR="${OUT_DIR:-out}"
+
+declare -r BOOT_EFI="${BOOT_EFI:-"$OUT_DIR"/boot.efi}"
+
+declare -r ESP_IMG="${ESP_IMG:-"$OUT_DIR"/esp.img}"
+declare -r ESP_IMG_ROOT_DIR="${ESP_IMG_ROOT_DIR:-"$OUT_DIR"/esp-img-root}"
+declare -r ESP_IMG_ROOT_TEMPLATE_DIR="${ESP_IMG_ROOT_TEMPLATE_DIR:-'esp-img-root.template'}"
+
+declare -r LIVE_SQUASHFS="${LIVE_SQUASHFS:-"$OUT_DIR"/live.squashfs}"
+declare -r LIVE_SQUASHFS_ROOT_1_DIR="${LIVE_SQUASHFS_ROOT_1_DIR:-"$OUT_DIR"/live-squashfs-root.1}"
+declare -r LIVE_SQUASHFS_ROOT_2_DIR="${LIVE_SQUASHFS_ROOT_2_DIR:-"$OUT_DIR"/live-squashfs-root.2}"
+declare -r LIVE_SQUASHFS_ROOT_FINAL_DIR="${LIVE_SQUASHFS_ROOT_FINAL_DIR:-"$OUT_DIR"/live-squashfs-root.final}"
+declare -r LIVE_SQUASHFS_ROOT_TEMPLATE_DIR="${LIVE_SQUASHFS_ROOT_TEMPLATE_DIR:-'live-squashfs-root.template'}"
+
+declare -r MAIN_SQUASHFS="${MAIN_SQUASHFS:-"$OUT_DIR"/main.squashfs}"
+declare -r MAIN_SQUASHFS_ROOT_1_DIR="${MAIN_SQUASHFS_ROOT_1_DIR:-"$OUT_DIR"/main-squashfs-root.1}"
+declare -r MAIN_SQUASHFS_ROOT_2_DIR="${MAIN_SQUASHFS_ROOT_2_DIR:-"$OUT_DIR"/main-squashfs-root.2}"
+declare -r MAIN_SQUASHFS_ROOT_FINAL_DIR="${MAIN_SQUASHFS_ROOT_FINAL_DIR:-"$OUT_DIR"/main-squashfs-root.final}"
+declare -r MAIN_SQUASHFS_ROOT_TEMPLATE_DIR="${MAIN_SQUASHFS_ROOT_TEMPLATE_DIR:-'main-squashfs-root.template'}"
+
+declare -r OUT_ISO="${OUT_ISO:-"$OUT_DIR"/"$NAME"-"$VERSION"-"$ARCH".iso}"
+declare -r OUT_ISO_ROOT_DIR="${OUT_ISO_ROOT_DIR:-"$OUT_DIR"/out-iso-root}"
+declare -r OUT_ISO_ROOT_TEMPLATE_DIR="${OUT_ISO_ROOT_TEMPLATE_DIR:-'out-iso-root.template'}"
+
+function main {
+	[[ -d "$OUT_DIR" ]] || setup_out_dir
+
+	[[ "$EUID" -eq 0 ]] || switch_clean_env
+
+	[[ -d "$MAIN_SQUASHFS_ROOT_1_DIR" ]] || {
+		setup_main_squashfs_root_1_dir && rm -fr "$MAIN_SQUASHFS_ROOT_2_DIR"
+	}
+	[[ -d "$MAIN_SQUASHFS_ROOT_2_DIR" ]] || {
+		setup_main_squashfs_root_2_dir && rm -fr "$MAIN_SQUASHFS_ROOT_FINAL_DIR"
+	}
+	[[ -d "$MAIN_SQUASHFS_ROOT_FINAL_DIR" ]] || {
+		setup_main_squashfs_root_final_dir &&
+			rm -fr "$LIVE_SQUASHFS_ROOT_1_DIR" "$MAIN_SQUASHFS" "$BOOT_EFI"
+	}
+	[[ -d "$LIVE_SQUASHFS_ROOT_1_DIR" ]] || {
+		setup_live_squashfs_root_1_dir && rm -fr "$LIVE_SQUASHFS_ROOT_2_DIR"
+	}
+	[[ -d "$LIVE_SQUASHFS_ROOT_2_DIR" ]] || {
+		setup_live_squashfs_root_2_dir && rm -fr "$LIVE_SQUASHFS_ROOT_FINAL_DIR"
+	}
+	[[ -d "$LIVE_SQUASHFS_ROOT_FINAL_DIR" ]] || {
+		setup_live_squashfs_root_final_dir && rm -fr "$LIVE_SQUASHFS" "$BOOT_EFI"
+	}
+	[[ -f "$MAIN_SQUASHFS" ]] || {
+		setup_main_squashfs && rm -fr "$OUT_ISO_ROOT_DIR"
+	}
+	[[ -f "$LIVE_SQUASHFS" ]] || {
+		setup_live_squashfs && rm -fr "$OUT_ISO_ROOT_DIR"
+	}
+	[[ -f "$BOOT_EFI" ]] || {
+		setup_boot_efi && rm -fr "$ESP_IMG_ROOT_DIR"
+	}
+	[[ -d "$ESP_IMG_ROOT_DIR" ]] || {
+		setup_esp_img_root_dir && rm -f "$ESP_IMG"
+	}
+	[[ -f "$ESP_IMG" ]] || {
+		setup_esp_img && rm -fr "$OUT_ISO_ROOT_DIR"
+	}
+	[[ -d "$OUT_ISO_ROOT_DIR" ]] || {
+		setup_out_iso_root_dir && rm -f "$OUT_ISO"
+	}
+	[[ -f "$OUT_ISO" ]] || setup_out_iso
+}
+
+function apt_get_install_rootfs {
+	declare rootfs="$1"
+	shift
+
+	declare -i caught=0
+
+	{
+		# try
+		mount -B "$rootfs" "$rootfs" &&
+			chroot_sync "$rootfs" /usr/bin/apt-get -qq update &&
+			chroot_sync "$rootfs" /usr/bin/env DEBIAN_FRONTEND=noninteractive \
+				apt-get --no-install-recommends -qq install "$@" &&
+			chroot_sync "$rootfs" /usr/bin/apt-get -qq clean &&
+			rm -fr "$rootfs"/var/lib/apt/lists/*
+	} || {
+		# catch
+		caught=1
+	}
+	{
+		# finally
+		umount_sync "$rootfs"
+	}
+
+	[[ $caught -eq 0 ]] || error_exit 1 'Failed to install packages with apt-get'
+}
+
+function chroot_sync {
+	declare rootfs="$1"
+	shift
+
+	arch-chroot "$rootfs" /bin/sh -s -- "$@" <<<'sleep 1 && "$@"'
+}
+
+function cp_mkdir {
+	declare path_from="$1"
+	declare path_to="$2"
+	shift
+	shift
+
+	if endswith "$path_to" /; then
+		mkdir -p "$path_to"
+	else
+		mkdir -p "$(dirname "$path_to")"
+	fi
+
+	cp "$@" "$path_from" "$path_to"
+}
+
+function endswith {
+	declare text="$1"
+	declare suffix="$2"
+
+	[[ "$text" == *"$suffix" ]]
+}
+
+function error_exit {
+	declare exit_code="$1"
+	shift
+
+	echo "$@"
+	exit "$exit_code"
+}
+
+function setup_boot_efi {
+	declare boot_efi="$(setup_temp --suffix=.boot.efi)"
+
+	objcopy \
+		--add-section .osrel="$MAIN_SQUASHFS_ROOT_FINAL_DIR"/etc/os-release \
+		--change-section-vma .osrel=0x20000 \
+		--add-section .cmdline=<(echo "$KERNEL_CMDLINE") \
+		--change-section-vma .cmdline=0x30000 \
+		--add-section \
+		.linux="$MAIN_SQUASHFS_ROOT_FINAL_DIR"/boot/vmlinuz-"$KERNEL_VERSION"-"$ARCH" \
+		--change-section-vma .linux=0x40000 \
+		--add-section \
+		.initrd="$LIVE_SQUASHFS_ROOT_FINAL_DIR"/boot/initrd.img-"$KERNEL_VERSION"-"$ARCH" \
+		--change-section-vma .initrd=0x1000000 \
+		"$MAIN_SQUASHFS_ROOT_FINAL_DIR"/usr/lib/systemd/boot/efi/linuxx64.efi.stub \
+		"$boot_efi"
+
+	cp_mkdir "$boot_efi" "$BOOT_EFI"
+	rm "$boot_efi"
+}
+
+function setup_esp_img {
+	declare esp_img="$(setup_temp --suffix=.esp.img)"
+
+	truncate -s 300M "$esp_img"
+	mkfs.fat -F 32 "$esp_img"
+
+	declare esp_img_mountpoint="$(setup_temp --suffix=.esp.img.mountpoint -d)"
+
+	declare -i caught=0
+
+	{
+		# try
+		mount "$esp_img" "$esp_img_mountpoint" &&
+			cp_mkdir "$ESP_IMG_ROOT_DIR" "$esp_img_mountpoint" -Ta
+	} || {
+		# catch
+		caught=1
+	}
+	{
+		# finally
+		umount_sync "$esp_img_mountpoint"
+	}
+
+	[[ $caught -eq 0 ]] || error_exit 1 'Failed to create and set up esp.img'
+
+	rmdir "$esp_img_mountpoint"
+
+	cp_mkdir "$esp_img" "$ESP_IMG" -a
+	rm "$esp_img"
+}
+
+function setup_esp_img_root_dir {
+	declare esp_img_root_dir="$(setup_temp --suffix=.esp-img-root -d)"
+
+	[[ ! -d "$ESP_IMG_ROOT_TEMPLATE_DIR" ]] ||
+		cp_mkdir "$ESP_IMG_ROOT_TEMPLATE_DIR" "$esp_img_root_dir" -Tr
+	cp_mkdir "$BOOT_EFI" "$esp_img_root_dir"/EFI/boot/bootx64.efi -a
+
+	cp_mkdir "$esp_img_root_dir" "$ESP_IMG_ROOT_DIR" -a
+	rm -fr "$esp_img_root_dir"
+}
+
+function setup_live_squashfs {
+	declare live_squashfs="$(setup_temp --suffix=.live.squashfs)"
+
+	setup_squashfs "$live_squashfs" "$LIVE_SQUASHFS_ROOT_FINAL_DIR"
+
+	cp_mkdir "$live_squashfs" "$LIVE_SQUASHFS" -a
+	rm "$live_squashfs"
+}
+
+function setup_live_squashfs_root_1_dir {
+	mkdir -p "$LIVE_SQUASHFS_ROOT_1_DIR"
+}
+
+function setup_live_squashfs_root_2_dir {
+	declare lowerdir="$MAIN_SQUASHFS_ROOT_FINAL_DIR"
+	declare upperdir="$(setup_temp --suffix=.live-squashfs-root.2.upper -d)"
+	declare workdir="$(setup_temp --suffix=.live-squashfs-root.2.work -d)"
+	declare merged_dir="$(setup_temp --suffix=.live-squashfs-root.2.merged -d)"
+
+	declare -i caught=0
+
+	{
+		# try
+		mount -o lowerdir="$lowerdir",upperdir="$upperdir",workdir="$workdir" \
+			-t overlay overlay "$merged_dir" &&
+			cp_mkdir "$LIVE_SQUASHFS_ROOT_1_DIR" "$merged_dir" -Ta &&
+			apt_get_install_rootfs "$merged_dir" "${LIVE_PACKAGES[@]}" &&
+			cp_mkdir "$upperdir" "$LIVE_SQUASHFS_ROOT_2_DIR" -a
+	} || {
+		# catch
+		caught=1
+	}
+	{
+		# finally
+		umount_sync "$merged_dir"
+	}
+
+	[[ $caught -eq 0 ]] ||
+		error_exit 1 \
+			'Failed to set up the second layer of the live-squashfs-rootfs'
+
+	rm -fr "$upperdir" "$workdir" "$merged_dir"
+}
+
+function setup_live_squashfs_root_final_dir {
+	declare lowerdir="$MAIN_SQUASHFS_ROOT_FINAL_DIR"
+	declare upperdir="$(setup_temp --suffix=.live-squashfs-root.final.upper -d)"
+	declare workdir="$(setup_temp --suffix=.live-squashfs-root.final.work -d)"
+	declare merged_dir="$(setup_temp --suffix=.live-squashfs-root.final.merged \
+		-d)"
+
+	declare -i caught=0
+
+	{
+		# try
+		mount -o lowerdir="$lowerdir",upperdir="$upperdir",workdir="$workdir" \
+			-t overlay overlay "$merged_dir" &&
+			cp_mkdir "$LIVE_SQUASHFS_ROOT_2_DIR" "$merged_dir" -Ta &&
+			{
+				[[ ! -d "$LIVE_SQUASHFS_ROOT_TEMPLATE_DIR" ]] ||
+					cp_mkdir "$LIVE_SQUASHFS_ROOT_TEMPLATE_DIR" "$merged_dir" -Tr
+			} &&
+			cp_mkdir "$upperdir" "$LIVE_SQUASHFS_ROOT_FINAL_DIR" -a
+	} || {
+		# catch
+		caught=1
+	}
+	{
+		# finally
+		umount_sync "$merged_dir"
+	}
+
+	[[ $caught -eq 0 ]] ||
+		error_exit 1 'Failed to set up the final layer of the live-squashfs-rootfs'
+
+	rm -fr "$upperdir" "$workdir" "$merged_dir"
+}
+
+function setup_main_squashfs {
+	declare main_squashfs="$(setup_temp --suffix=.main.squashfs)"
+
+	setup_squashfs "$main_squashfs" "$MAIN_SQUASHFS_ROOT_FINAL_DIR"
+
+	cp_mkdir "$main_squashfs" "$MAIN_SQUASHFS" -a
+	rm "$main_squashfs"
+}
+
+function setup_main_squashfs_root_1_dir {
+	declare main_squashfs_root_1_dir="$(setup_temp \
+		--suffix=.main-squashfs-root.1 -d)"
+
+	mmdebstrap --variant=minbase -q "$DEBIAN_SUITE" "$main_squashfs_root_1_dir"
+
+	cp_mkdir "$main_squashfs_root_1_dir" "$MAIN_SQUASHFS_ROOT_1_DIR" -a
+	rm -fr "$main_squashfs_root_1_dir"
+}
+
+function setup_main_squashfs_root_2_dir {
+	declare main_squashfs_root_2_dir="$(setup_temp \
+		--suffix=.main-squashfs-root.2 -d)"
+	cp_mkdir "$MAIN_SQUASHFS_ROOT_1_DIR" "$main_squashfs_root_2_dir" -Ta
+
+	apt_get_install_rootfs "$main_squashfs_root_2_dir" "${PACKAGES[@]}"
+
+	cp_mkdir "$main_squashfs_root_2_dir" "$MAIN_SQUASHFS_ROOT_2_DIR" -a
+	rm -fr "$main_squashfs_root_2_dir"
+}
+
+function setup_main_squashfs_root_final_dir {
+	declare main_squashfs_root_final_dir="$(setup_temp \
+		--suffix=.main-squashfs-root.final -d)"
+	cp_mkdir "$MAIN_SQUASHFS_ROOT_2_DIR" "$main_squashfs_root_final_dir" -Ta
+
+	[[ ! -d "$MAIN_SQUASHFS_ROOT_TEMPLATE_DIR" ]] ||
+		cp_mkdir "$MAIN_SQUASHFS_ROOT_TEMPLATE_DIR" \
+			"$main_squashfs_root_final_dir" -Tr
+
+	cp_mkdir "$main_squashfs_root_final_dir" "$MAIN_SQUASHFS_ROOT_FINAL_DIR" -a
+	rm -fr "$main_squashfs_root_final_dir"
+}
+
+function setup_out_dir {
+	mkdir -p "$OUT_DIR"
+}
+
+function setup_out_iso {
+	declare out_iso="$(setup_temp --suffix=.out.iso)"
+
+	xorriso -as mkisofs -append_partition 2 0xef "$ESP_IMG" -o "$out_iso" \
+		-quiet "$OUT_ISO_ROOT_DIR"
+	chmod 644 "$out_iso"
+
+	cp_mkdir "$out_iso" "$OUT_ISO" -a
+	rm "$out_iso"
+}
+
+function setup_out_iso_root_dir {
+	declare out_iso_root_dir="$(setup_temp --suffix=.out-iso-root -d)"
+
+	[[ ! -d "$OUT_ISO_ROOT_TEMPLATE_DIR" ]] ||
+		cp_mkdir "$OUT_ISO_ROOT_TEMPLATE_DIR" "$out_iso_root_dir" -Tr
+	cp_mkdir "$MAIN_SQUASHFS" "$out_iso_root_dir"/live/10-main.squashfs -a
+	cp_mkdir "$LIVE_SQUASHFS" "$out_iso_root_dir"/live/20-live.squashfs -a
+
+	cp_mkdir "$out_iso_root_dir" "$OUT_ISO_ROOT_DIR" -a
+	rm -fr "$out_iso_root_dir"
+}
+
+function setup_squashfs {
+	declare squashfs="$1"
+	shift
+
+	mksquashfs "$@" "$squashfs" -comp xz -no-progress -noappend -quiet
+}
+
+function setup_temp {
+	mktemp -p "$OUT_DIR" "$@"
+}
+
+function switch_clean_env {
+	exec env -i LANG=C.UTF-8 "$SUDO_COMMAND" "$BASH_SOURCE" "$@"
+}
+
+function umount_sync {
+	sleep 1
+	umount "$@"
+}
+
+main "$@"

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -eu
+
+# Load common Mindeb configuration variables
+declare -r CONFIG_SH="${CONFIG_SH:-mindeb_config.sh}"
+source "$CONFIG_SH"
+: "$NAME" "$VERSION" "$ARCH"
+
+# Output paths
+declare -r OUT_DIR=out
+
+declare -r OUT_ISO="${OUT_ISO:-"$OUT_DIR"/"$NAME"-"$VERSION"-"$ARCH".iso}"
+
+function main {
+	run_qemu
+}
+
+function run_qemu {
+	declare out_iso="$(setup_temp --suffix=.out.iso)"
+	cp "$OUT_ISO" "$out_iso"
+
+	declare temp_qcow2="$(setup_temp --suffix=.temp.qcow2)"
+	qemu-img create -qf qcow2 "$temp_qcow2" 1G
+
+	{
+		# try
+		qemu-system-x86_64 \
+			-bios /usr/share/ovmf/OVMF.fd \
+			-cpu host \
+			-drive file="$out_iso",format=raw \
+			-drive file="$temp_qcow2" \
+			-enable-kvm \
+			-m 1G \
+			-vga virtio
+	} || {
+		# catch
+		:
+	}
+	{
+		# finally
+		rm "$out_iso" "$temp_qcow2"
+	}
+}
+
+function setup_temp {
+	mktemp -p "$OUT_DIR" "$@"
+}
+
+main "$@"
