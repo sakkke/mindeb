@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `sudo` in live.
 - Live user to group `sudo`.
 - Default hostname.
+- `boot.efi` in main.
 
 ### Fixed
 

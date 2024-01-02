@@ -148,22 +148,38 @@ function error_exit {
 function setup_boot_efi {
 	declare boot_efi="$(setup_temp --suffix=.boot.efi)"
 
-	objcopy \
-		--add-section .osrel="$MAIN_SQUASHFS_ROOT_FINAL_DIR"/etc/os-release \
-		--change-section-vma .osrel=0x20000 \
-		--add-section .cmdline=<(echo "$KERNEL_CMDLINE") \
-		--change-section-vma .cmdline=0x30000 \
-		--add-section \
-		.linux="$MAIN_SQUASHFS_ROOT_FINAL_DIR"/boot/vmlinuz-"$KERNEL_VERSION"-"$ARCH" \
-		--change-section-vma .linux=0x40000 \
-		--add-section \
-		.initrd="$LIVE_SQUASHFS_ROOT_FINAL_DIR"/boot/initrd.img-"$KERNEL_VERSION"-"$ARCH" \
-		--change-section-vma .initrd=0x1000000 \
+	setup_efi \
+		"$MAIN_SQUASHFS_ROOT_FINAL_DIR"/etc/os-release \
+		<(echo "$LIVE_KERNEL_CMDLINE") \
+		"$MAIN_SQUASHFS_ROOT_FINAL_DIR"/boot/vmlinuz-"$KERNEL_VERSION"-"$ARCH" \
+		"$LIVE_SQUASHFS_ROOT_FINAL_DIR"/boot/initrd.img-"$KERNEL_VERSION"-"$ARCH" \
 		"$MAIN_SQUASHFS_ROOT_FINAL_DIR"/usr/lib/systemd/boot/efi/linuxx64.efi.stub \
 		"$boot_efi"
 
 	cp_mkdir "$boot_efi" "$BOOT_EFI"
 	rm "$boot_efi"
+}
+
+function setup_efi {
+	declare osrel="$1"
+	declare cmdline="$2"
+	declare linux="$3"
+	declare initrd="$4"
+	declare efi_stub="$5"
+	declare efi="$6"
+
+	mkdir -p "$(dirname "$6")"
+	objcopy \
+		--add-section .osrel="$osrel" \
+		--change-section-vma .osrel=0x20000 \
+		--add-section .cmdline="$cmdline" \
+		--change-section-vma .cmdline=0x30000 \
+		--add-section .linux="$linux" \
+		--change-section-vma .linux=0x40000 \
+		--add-section .initrd="$initrd" \
+		--change-section-vma .initrd=0x1000000 \
+		"$efi_stub" \
+		"$efi"
 }
 
 function setup_esp_img {
@@ -329,6 +345,13 @@ function setup_main_squashfs_root_final_dir {
 	[[ ! -d "$MAIN_SQUASHFS_ROOT_TEMPLATE_DIR" ]] ||
 		cp_mkdir "$MAIN_SQUASHFS_ROOT_TEMPLATE_DIR" \
 			"$main_squashfs_root_final_dir" -Tr
+	setup_efi \
+		"$main_squashfs_root_final_dir"/etc/os-release \
+		<(echo "$KERNEL_CMDLINE") \
+		"$main_squashfs_root_final_dir"/boot/vmlinuz-"$KERNEL_VERSION"-"$ARCH" \
+		"$main_squashfs_root_final_dir"/boot/initrd.img-"$KERNEL_VERSION"-"$ARCH" \
+		"$main_squashfs_root_final_dir"/usr/lib/systemd/boot/efi/linuxx64.efi.stub \
+		"$main_squashfs_root_final_dir"/boot/efi/EFI/boot/bootx64.efi
 
 	cp_mkdir "$main_squashfs_root_final_dir" "$MAIN_SQUASHFS_ROOT_FINAL_DIR" -a
 	rm -fr "$main_squashfs_root_final_dir"
