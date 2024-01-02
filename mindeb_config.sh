@@ -15,6 +15,7 @@ declare -r PACKAGES=(
 )
 
 declare -r LIVE_PACKAGES=(
+	dosfstools
 	gdisk
 	live-boot
 	sudo
