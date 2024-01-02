@@ -15,6 +15,7 @@ declare -r PACKAGES=(
 )
 
 declare -r LIVE_PACKAGES=(
+	gdisk
 	live-boot
 	sudo
 )

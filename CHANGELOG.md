@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Live user to group `sudo`.
 - Default hostname.
 - `boot.efi` in main.
+- `gdisk` in live.
 
 ### Fixed
 
