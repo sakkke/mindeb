@@ -362,6 +362,7 @@ function setup_main_squashfs_root_2_dir {
 		--suffix=.main-squashfs-root.2 -d)"
 	cp_mkdir "$MAIN_SQUASHFS_ROOT_1_DIR" "$main_squashfs_root_2_dir" -Ta
 
+	apt_get_install_rootfs "$main_squashfs_root_2_dir" apt-utils
 	apt_get_install_rootfs "$main_squashfs_root_2_dir" "${PACKAGES[@]}"
 
 	cp_mkdir "$main_squashfs_root_2_dir" "$MAIN_SQUASHFS_ROOT_2_DIR" -a
