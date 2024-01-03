@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `arch-install-scripts` in live.
 - `apt-utils` as a required package.
 - `zstd`.
+- `firmware-linux-free`.
+- `network-manager`, `dnsmasq-base`, `libpam-systemd`, `modemmanager`, `ppp`,
+  `wireless-regdb`, and `wpasupplicant`.
 
 ### Fixed
 

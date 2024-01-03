@@ -8,10 +8,18 @@ declare -r KERNEL_VERSION=6.1.0-16
 declare -r KERNEL_CMDLINE='root=PARTLABEL=mindeb rw'
 
 declare -r PACKAGES=(
+	dnsmasq-base
+	firmware-linux-free
+	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
+	modemmanager
+	network-manager
+	ppp
 	systemd
 	systemd-boot-efi
 	systemd-sysv
+	wireless-regdb
+	wpasupplicant
 	zstd
 )
 
