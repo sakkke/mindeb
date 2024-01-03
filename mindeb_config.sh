@@ -15,6 +15,7 @@ declare -r PACKAGES=(
 	modemmanager
 	network-manager
 	ppp
+	sudo
 	systemd
 	systemd-boot-efi
 	systemd-sysv
@@ -29,7 +30,6 @@ declare -r LIVE_PACKAGES=(
 	gdisk
 	live-boot
 	nano
-	sudo
 	vim
 )
 
