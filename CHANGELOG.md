@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.0.2] - 2024-01-04
+
 ### Added
 
 - Live user.
@@ -46,5 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `mindeb-build`.
 
-[unreleased]: https://github.com/sakkke/mindeb/compare/v0.0.1...HEAD
+[unreleased]: https://github.com/sakkke/mindeb/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/sakkke/mindeb/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/sakkke/mindeb/releases/tag/v0.0.1
