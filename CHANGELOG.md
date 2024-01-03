@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `nano` and `vim` in live.
 - `sudo`.
 - `nano` and `vim`.
+- `dialog`.
 
 ### Fixed
 

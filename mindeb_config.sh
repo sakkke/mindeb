@@ -8,6 +8,7 @@ declare -r KERNEL_VERSION=6.1.0-16
 declare -r KERNEL_CMDLINE='root=PARTLABEL=mindeb rw'
 
 declare -r PACKAGES=(
+	dialog
 	dnsmasq-base
 	firmware-linux-free
 	libpam-systemd
