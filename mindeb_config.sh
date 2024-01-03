@@ -12,6 +12,7 @@ declare -r PACKAGES=(
 	systemd
 	systemd-boot-efi
 	systemd-sysv
+	zstd
 )
 
 declare -r LIVE_PACKAGES=(
