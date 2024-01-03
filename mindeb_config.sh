@@ -13,12 +13,14 @@ declare -r PACKAGES=(
 	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
 	modemmanager
+	nano
 	network-manager
 	ppp
 	sudo
 	systemd
 	systemd-boot-efi
 	systemd-sysv
+	vim
 	wireless-regdb
 	wpasupplicant
 	zstd
@@ -29,8 +31,6 @@ declare -r LIVE_PACKAGES=(
 	dosfstools
 	gdisk
 	live-boot
-	nano
-	vim
 )
 
 declare -r LIVE_KERNEL_CMDLINE=boot=live
