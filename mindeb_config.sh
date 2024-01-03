@@ -11,6 +11,7 @@ declare -r PACKAGES=(
 	dialog
 	dnsmasq-base
 	firmware-linux-free
+	gdisk
 	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
 	modemmanager
@@ -30,7 +31,6 @@ declare -r PACKAGES=(
 declare -r LIVE_PACKAGES=(
 	arch-install-scripts
 	dosfstools
-	gdisk
 	live-boot
 )
 
