@@ -145,6 +145,36 @@ function error_exit {
 	exit "$exit_code"
 }
 
+function fat32_img_size {
+	declare dir="$1"
+
+	declare -i unit_sector=512
+
+	declare -i reserved_sectors=32
+	declare -i num_fats=2
+	declare -i num_paths=$(find "$dir" -mindepth 1 | wc -l)
+	declare -i fat_sectors=$((num_paths * unit_sector / num_fats - 1))
+
+	declare -i user_data_sectors=0
+	while read -r path; do
+		declare -i path_size=$(du -b "$path" | cut -f 1)
+
+		declare -i sectors=$((path_size / unit_sector))
+		[[ $((path_size % unit_sector)) -eq 0 ]] || ((sectors++))
+
+		((user_data_sectors += sectors))
+	done < <(find "$dir" -mindepth 1 -type f)
+
+	declare -i fat32_img_size=$(((reserved_sectors + fat_sectors * num_fats + num_paths + user_data_sectors) * unit_sector))
+	declare -i sectors_per_cluster=8
+	declare -i cluster_size=$((sectors_per_cluster * unit_sector))
+	while ((fat32_img_size % cluster_size != 0)); do
+		((fat32_img_size += unit_sector))
+	done
+
+	echo "$fat32_img_size"
+}
+
 function setup_boot_efi {
 	declare boot_efi="$(setup_temp --suffix=.boot.efi)"
 
@@ -185,8 +215,9 @@ function setup_efi {
 function setup_esp_img {
 	declare esp_img="$(setup_temp --suffix=.esp.img)"
 
-	truncate -s 300M "$esp_img"
-	mkfs.fat -F 32 "$esp_img"
+	declare esp_img_size="$(fat32_img_size "$ESP_IMG_ROOT_DIR")"
+	truncate -s "$esp_img_size" "$esp_img"
+	mkfs.fat "$esp_img"
 
 	declare esp_img_mountpoint="$(setup_temp --suffix=.esp.img.mountpoint -d)"
 
