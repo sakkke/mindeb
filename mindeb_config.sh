@@ -10,6 +10,7 @@ declare -r KERNEL_CMDLINE='root=PARTLABEL=mindeb rw'
 declare -r PACKAGES=(
 	dialog
 	dnsmasq-base
+	dosfstools
 	firmware-linux-free
 	gdisk
 	libpam-systemd
@@ -30,7 +31,6 @@ declare -r PACKAGES=(
 
 declare -r LIVE_PACKAGES=(
 	arch-install-scripts
-	dosfstools
 	live-boot
 )
 
