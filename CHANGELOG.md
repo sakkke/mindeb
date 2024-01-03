@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Disk size to `2G` in `mindeb-run`.
 - Boot order in `mindeb-run`.
+- Improved VM performance in `mindeb-run`.
 
 ## [0.0.1] - 2024-01-02
 

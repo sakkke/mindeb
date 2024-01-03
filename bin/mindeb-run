@@ -21,7 +21,7 @@ function run_qemu {
 	cp "$OUT_ISO" "$out_iso"
 
 	declare temp_qcow2="$(setup_temp --suffix=.temp.qcow2)"
-	qemu-img create -qf qcow2 "$temp_qcow2" 2G
+	qemu-img create -qf qcow2 "$temp_qcow2" 32G
 
 	{
 		# try
@@ -31,7 +31,7 @@ function run_qemu {
 			-drive file="$temp_qcow2" \
 			-drive file="$out_iso",format=raw \
 			-enable-kvm \
-			-m 1G \
+			-m 8G \
 			-vga virtio
 	} || {
 		# catch
