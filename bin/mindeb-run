@@ -28,8 +28,8 @@ function run_qemu {
 		qemu-system-x86_64 \
 			-bios /usr/share/ovmf/OVMF.fd \
 			-cpu host \
-			-drive file="$out_iso",format=raw \
 			-drive file="$temp_qcow2" \
+			-drive file="$out_iso",format=raw \
 			-enable-kvm \
 			-m 1G \
 			-vga virtio
