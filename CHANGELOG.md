@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `firmware-linux-free`.
 - `network-manager`, `dnsmasq-base`, `libpam-systemd`, `modemmanager`, `ppp`,
   `wireless-regdb`, and `wpasupplicant`.
+- `nano` and `vim` in live.
 
 ### Fixed
 

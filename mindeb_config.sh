@@ -28,7 +28,9 @@ declare -r LIVE_PACKAGES=(
 	dosfstools
 	gdisk
 	live-boot
+	nano
 	sudo
+	vim
 )
 
 declare -r LIVE_KERNEL_CMDLINE=boot=live
