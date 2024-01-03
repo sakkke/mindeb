@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `gdisk` in live.
 - `dosfstools` in live.
 - Fitted `esp.img`.
+- `arch-install-scripts` in live.
 
 ### Fixed
 
