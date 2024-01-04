@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `mksquashfs` block size from 128K to 1M.
+- Added `-always-use-fragments` to `mksquashfs`.
 
 ## [v0.0.2] - 2024-01-04
 

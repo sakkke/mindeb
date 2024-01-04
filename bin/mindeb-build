@@ -420,7 +420,8 @@ function setup_squashfs {
 	declare squashfs="$1"
 	shift
 
-	mksquashfs "$@" "$squashfs" -b 1M -comp xz -no-progress -noappend -quiet
+	mksquashfs "$@" "$squashfs" -always-use-fragments -b 1M -comp xz \
+		-no-progress -noappend -quiet
 }
 
 function setup_temp {
