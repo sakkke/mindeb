@@ -14,6 +14,7 @@ declare -r PACKAGES=(
 	firmware-linux-free
 	gdisk
 	htop
+	ifupdown
 	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
 	modemmanager
