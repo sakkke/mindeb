@@ -13,6 +13,7 @@ declare -r PACKAGES=(
 	dosfstools
 	firmware-linux-free
 	gdisk
+	htop
 	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
 	modemmanager
