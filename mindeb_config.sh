@@ -23,6 +23,7 @@ declare -r PACKAGES=(
 	systemd
 	systemd-boot-efi
 	systemd-sysv
+	systemd-timesyncd
 	vim
 	wireless-regdb
 	wpasupplicant
