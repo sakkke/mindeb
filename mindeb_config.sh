@@ -19,6 +19,7 @@ declare -r PACKAGES=(
 	modemmanager
 	nano
 	network-manager
+	pciutils
 	ppp
 	screen
 	sudo
