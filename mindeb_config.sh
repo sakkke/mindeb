@@ -19,6 +19,7 @@ declare -r PACKAGES=(
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
 	modemmanager
 	nano
+	netcat-openbsd
 	network-manager
 	pciutils
 	ppp
