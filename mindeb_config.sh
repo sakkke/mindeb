@@ -11,6 +11,7 @@ declare -r PACKAGES=(
 	dialog
 	dnsmasq-base
 	dosfstools
+	firewalld
 	firmware-linux-free
 	gdisk
 	htop
