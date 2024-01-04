@@ -19,6 +19,7 @@ declare -r PACKAGES=(
 	nano
 	network-manager
 	ppp
+	screen
 	sudo
 	systemd
 	systemd-boot-efi
