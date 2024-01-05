@@ -219,7 +219,7 @@ reboot
 ## Build
 
 ```sh
-bin/mindeb-build
+./bin/mindeb-build
 ```
 
 ### Build requirements
@@ -244,7 +244,7 @@ sudo apt -y install mmdebstrap arch-install-scripts dosfstools squashfs-tools \
 ### Test the ISO image
 
 ```sh
-bin/mindeb-run
+./bin/mindeb-run
 ```
 
 #### Test requirements
