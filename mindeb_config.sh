@@ -1,5 +1,5 @@
 declare -r NAME=mindeb
-declare -r VERSION=0.0.4
+declare -r VERSION=0.0.5
 
 declare -r ARCH="$(dpkg --print-architecture)"
 
