@@ -241,6 +241,23 @@ sudo apt -y install mmdebstrap arch-install-scripts dosfstools squashfs-tools \
   xorriso sudo
 ```
 
+### Test the ISO image
+
+```sh
+bin/mindeb-run
+```
+
+#### Test requirements
+
+- `qemu-img`
+- `qemu-system-x86_64`
+
+##### Test requirements installation
+
+```sh
+sudo apt -y install qemu-utils qemu-system-x86
+```
+
 ## License
 
 [MIT](./LICENSE)
