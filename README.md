@@ -1,5 +1,4 @@
-# mindeb
-Minimal Debian
+![mindeb](https://socialify.git.ci/sakkke/mindeb/image?description=1&forks=1&issues=1&name=1&owner=1&pattern=Plus&pulls=1&stargazers=1&theme=Auto)
 
 ## Installation guide
 
