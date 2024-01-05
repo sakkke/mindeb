@@ -4,6 +4,7 @@ declare -r VERSION=0.0.2
 declare -r ARCH="$(dpkg --print-architecture)"
 
 declare -r DEBIAN_SUITE=bookworm
+declare -r DEBIAN_COMPONENTS=main,non-free-firmware
 declare -r KERNEL_VERSION=6.1.0-16
 declare -r KERNEL_CMDLINE='root=PARTLABEL=mindeb rw'
 

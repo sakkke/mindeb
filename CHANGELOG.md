@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ifupdown`.
 - `netcat-openbsd`.
 - `firewalld`.
+- Component `non-free-firmware`.
 
 ### Changed
 

@@ -5,9 +5,9 @@ set -eu
 # Load common Mindeb configuration variables
 declare -r CONFIG_SH="${CONFIG_SH:-mindeb_config.sh}"
 source "$CONFIG_SH"
-: "$NAME" "$VERSION" "$ARCH" "$DEBIAN_SUITE" "$KERNEL_VERSION" \
-	"$KERNEL_CMDLINE" "${PACKAGES[@]}" "${LIVE_PACKAGES[@]}" "$LIVE_USERNAME" \
-	"$LIVE_PASSWORD"
+: "$NAME" "$VERSION" "$ARCH" "$DEBIAN_SUITE" "$DEBIAN_COMPONENTS" \
+	"$KERNEL_VERSION" "$KERNEL_CMDLINE" "${PACKAGES[@]}" "${LIVE_PACKAGES[@]}" \
+	"$LIVE_USERNAME" "$LIVE_PASSWORD"
 
 # Build configurations
 declare -r SUDO_COMMAND="${SUDO_COMMAND:-sudo}"
@@ -351,7 +351,7 @@ function setup_main_squashfs_root_1_dir {
 	declare main_squashfs_root_1_dir="$(setup_temp \
 		--suffix=.main-squashfs-root.1 -d)"
 
-	mmdebstrap --variant=minbase -q "$DEBIAN_SUITE" "$main_squashfs_root_1_dir"
+	mmdebstrap --components="$DEBIAN_COMPONENTS" --variant=minbase -q "$DEBIAN_SUITE" "$main_squashfs_root_1_dir"
 
 	cp_mkdir "$main_squashfs_root_1_dir" "$MAIN_SQUASHFS_ROOT_1_DIR" -a
 	rm -fr "$main_squashfs_root_1_dir"
