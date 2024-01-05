@@ -13,7 +13,7 @@ declare -r PACKAGES=(
 	dnsmasq-base
 	dosfstools
 	firewalld
-	firmware-linux-free
+	firmware-linux
 	gdisk
 	htop
 	ifupdown
