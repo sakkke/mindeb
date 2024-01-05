@@ -205,3 +205,7 @@ Restart the machine:
 ```sh
 reboot
 ```
+
+## License
+
+[MIT](./LICENSE)
