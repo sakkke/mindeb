@@ -2,6 +2,14 @@
 
 [Changelog](./CHANGELOG.md)
 
+## Features
+
+- **Minimal**: The ISO image is about 400MB. This size is half of Archiso.
+- **Easy**: Installation is just copying the system files. So installable offline
+  as well.
+- **Compatible**: System follows upstream Debian. Basic firmware and basic
+  middlewares are included by default.
+
 ## Installation guide
 
 ### Pre-installation
