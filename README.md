@@ -234,7 +234,7 @@ bin/mindeb-build
 - `xorriso`
 - `sudo` (optional)
 
-#### Requirements installation
+#### Build requirements installation
 
 ```sh
 sudo apt -y install mmdebstrap arch-install-scripts dosfstools squashfs-tools \
