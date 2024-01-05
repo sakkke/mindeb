@@ -18,6 +18,7 @@ declare -r PACKAGES=(
 	gdisk
 	htop
 	ifupdown
+	libarchive-tools
 	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
 	modemmanager
