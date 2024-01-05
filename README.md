@@ -208,6 +208,12 @@ Restart the machine:
 reboot
 ```
 
+## Build
+
+```sh
+bin/mindeb-build
+```
+
 ## License
 
 [MIT](./LICENSE)
