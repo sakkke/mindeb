@@ -9,6 +9,8 @@ declare -r KERNEL_VERSION=6.1.0-16
 declare -r KERNEL_CMDLINE='root=PARTLABEL=mindeb rw'
 
 declare -r PACKAGES=(
+	console-common
+	console-data
 	dialog
 	dnsmasq-base
 	dosfstools
@@ -18,6 +20,7 @@ declare -r PACKAGES=(
 	gdisk
 	htop
 	ifupdown
+	kbd
 	libarchive-tools
 	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
