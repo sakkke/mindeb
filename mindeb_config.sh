@@ -24,6 +24,7 @@ declare -r PACKAGES=(
 	nano
 	netcat-openbsd
 	network-manager
+	openssh-server
 	pciutils
 	ppp
 	screen
