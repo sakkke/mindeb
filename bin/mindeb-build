@@ -384,6 +384,7 @@ function setup_main_squashfs_root_final_dir {
 		"$main_squashfs_root_final_dir"/boot/initrd.img-"$KERNEL_VERSION"-"$ARCH" \
 		"$main_squashfs_root_final_dir"/usr/lib/systemd/boot/efi/linuxx64.efi.stub \
 		"$main_squashfs_root_final_dir"/boot/efi/EFI/boot/bootx64.efi
+	chroot_sync "$main_squashfs_root_final_dir" /usr/bin/passwd -ql root
 
 	cp_mkdir "$main_squashfs_root_final_dir" "$MAIN_SQUASHFS_ROOT_FINAL_DIR" -a
 	rm -fr "$main_squashfs_root_final_dir"
