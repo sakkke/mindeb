@@ -86,16 +86,23 @@ function apt_get_install_rootfs {
 	declare rootfs="$1"
 	shift
 
+	chroot_sync "$rootfs" /usr/bin/apt-get -qq update
+	chroot_sync "$rootfs" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get \
+		--no-install-recommends -qq install "$@"
+	chroot_sync "$rootfs" /usr/bin/apt-get -qq clean
+	rm -fr "$rootfs"/var/lib/apt/lists/*
+}
+
+function chroot_sync {
+	declare rootfs="$1"
+	shift
+
 	declare -i caught=0
 
 	{
 		# try
-		mount -B "$rootfs" "$rootfs" &&
-			chroot_sync "$rootfs" /usr/bin/apt-get -qq update &&
-			chroot_sync "$rootfs" /usr/bin/env DEBIAN_FRONTEND=noninteractive \
-				apt-get --no-install-recommends -qq install "$@" &&
-			chroot_sync "$rootfs" /usr/bin/apt-get -qq clean &&
-			rm -fr "$rootfs"/var/lib/apt/lists/*
+		mount -B "$rootfs" "$rootfs"
+		arch-chroot "$rootfs" /bin/sh -s -- "$@" <<<'sleep 1 && "$@"'
 	} || {
 		# catch
 		caught=1
@@ -105,14 +112,7 @@ function apt_get_install_rootfs {
 		umount_sync "$rootfs"
 	}
 
-	[[ $caught -eq 0 ]] || error_exit 1 'Failed to install packages with apt-get'
-}
-
-function chroot_sync {
-	declare rootfs="$1"
-	shift
-
-	arch-chroot "$rootfs" /bin/sh -s -- "$@" <<<'sleep 1 && "$@"'
+	[[ $caught -eq 0 ]] || error_exit 1 'Failed to run chroot_sync'
 }
 
 function cp_mkdir {

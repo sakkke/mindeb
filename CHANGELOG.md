@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update `apt_get_install_rootfs` and `chroot_sync` functions.
+
 ## [v0.0.3] - 2024-01-05
 
 ### Added
