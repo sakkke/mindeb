@@ -21,6 +21,7 @@ declare -r PACKAGES=(
 	libarchive-tools
 	libpam-systemd
 	linux-image-"$KERNEL_VERSION"-"$ARCH"
+	locales
 	modemmanager
 	nano
 	netcat-openbsd
