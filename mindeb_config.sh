@@ -32,6 +32,7 @@ declare -r PACKAGES=(
 	openssh-server
 	pciutils
 	ppp
+	rsync
 	screen
 	sudo
 	systemd
