@@ -13,6 +13,7 @@ declare -r PACKAGES=(
 	dnsmasq-base
 	dosfstools
 	firewalld
+	firmware-iwlwifi
 	firmware-linux
 	gdisk
 	htop
