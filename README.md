@@ -222,6 +222,25 @@ reboot
 bin/mindeb-build
 ```
 
+### Build requirements
+
+**OS**: Debian-based Linux distribution
+**Commands**:
+
+- `mmdebstrap`
+- `arch-chroot`
+- `mkfs.fat`
+- `mksquashfs`
+- `xorriso`
+- `sudo` (optional)
+
+#### Requirements installation
+
+```sh
+sudo apt -y install mmdebstrap arch-install-scripts dosfstools squashfs-tools \
+  xorriso sudo
+```
+
 ## License
 
 [MIT](./LICENSE)
