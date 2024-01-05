@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `locales`.
 - `console-data`.
+- Social preview image.
 
 ## [v0.0.3] - 2024-01-05
 
